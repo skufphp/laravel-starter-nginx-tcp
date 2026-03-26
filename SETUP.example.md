@@ -1,6 +1,6 @@
 # Инструкция по работе с Laravel Boilerplate
 
-Этот boilerplate предназначен для быстрого развертывания Laravel-проекта с архитектурой **PHP-FPM 8.5 + Nginx 1.29 (TCP) + PostgreSQL 18.2 + Redis 8.6**.
+Этот boilerplate предназначен для быстрого развертывания Laravel-проекта с архитектурой **PHP-FPM 8.5 + Nginx 1.29 (Unix socket) + PostgreSQL 18.2 + Redis 8.6**.
 
 ---
 
@@ -45,7 +45,7 @@ Laravel как REST / GraphQL API без UI. Один сервис, проста
 │   ├── php/
 │   │   ├── php.ini             # PHP конфиг для разработки (display_errors = On)
 │   │   ├── php.prod.ini        # PHP конфиг для production (display_errors = Off, OPCache max)
-│   │   └── www.conf            # PHP-FPM pool (TCP порт 9000, healthcheck ping)
+│   │   └── www.conf            # PHP-FPM pool (Unix socket, healthcheck ping)
 │   └── nginx/
 │       └── conf.d/
 │           └── laravel.conf    # Nginx vhost (security headers, FastCGI буферы)
@@ -139,13 +139,13 @@ Laravel хранит дефолтные значения подключений 
 ```dotenv
 # --- Замените стандартные значения ---
 DB_CONNECTION=pgsql
-DB_HOST=laravel-postgres-nginx-tcp
+DB_HOST=laravel-postgres-nginx-uds
 DB_PORT=5432
 DB_DATABASE=laravel
 DB_USERNAME=postgres
 DB_PASSWORD=password
 
-REDIS_HOST=laravel-redis-nginx-tcp
+REDIS_HOST=laravel-redis-nginx-uds
 REDIS_PORT=6379
 
 QUEUE_CONNECTION=redis
@@ -313,7 +313,7 @@ make test-coverage  # Тесты с покрытием кода (Xdebug coverage
                     │    Nginx    │
                     │   (Alpine)  │
                     └──────┬──────┘
-                           │ TCP :9000
+                           │ Unix Socket
                     ┌──────▼──────┐
                     │   PHP-FPM   │──────────┐
                     │ (8.5 Alpine)│          │
@@ -347,7 +347,7 @@ production      →  php-base + код + vendor + ассеты + prod php.ini
 
 ### PHP-FPM (`docker/php/www.conf`)
 
-- TCP: `127.0.0.1:9000`
+- Unix socket: `/var/run/php/php-fpm.sock`
 - Process manager: `dynamic` (min 2, max 10)
 - Healthcheck endpoint: `/ping` → `pong`
 - Slowlog включён для диагностики
@@ -424,7 +424,7 @@ make logs-php
 
 Убедитесь, что `DB_HOST` в `.env` совпадает с именем сервиса в `docker-compose.yml`:
 ```dotenv
-DB_HOST=laravel-postgres-nginx-tcp
+DB_HOST=laravel-postgres-nginx-uds
 ```
 
 ### Права доступа (storage/cache)
@@ -439,7 +439,7 @@ make permissions
    ```bash
    COMPOSE_DEV_ARGS="--build-arg INSTALL_XDEBUG=true" make rebuild
    ```
-   Или добавьте в `docker-compose.yml` в секцию `build.args`:
+   Или добавьте в `docker-compose.dev.yml` в секцию `build.args`:
    ```yaml
    args:
      INSTALL_XDEBUG: "true"

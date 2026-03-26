@@ -1,5 +1,5 @@
 # ==========================================
-# Laravel PHP-FPM Nginx TCP (Boilerplate)
+# Laravel PHP-FPM Nginx Socket (Boilerplate)
 # ==========================================
 
 .PHONY: \
@@ -31,17 +31,17 @@ NGINX_PORT := 8050
 endif
 
 # Сервисы (имена сервисов из compose-файлов)
-PHP_SERVICE=laravel-php-nginx-tcp
-NGINX_SERVICE=laravel-nginx-tcp
-POSTGRES_SERVICE=laravel-postgres-nginx-tcp
-REDIS_SERVICE=laravel-redis-nginx-tcp
-PGADMIN_SERVICE=laravel-pgadmin-nginx-tcp
-NODE_SERVICE=laravel-node-nginx-tcp
-QUEUE_SERVICE=laravel-queue-nginx-tcp
-SCHEDULER_SERVICE=laravel-scheduler-nginx-tcp
+PHP_SERVICE=laravel-php-nginx-uds
+NGINX_SERVICE=laravel-nginx-uds
+POSTGRES_SERVICE=laravel-postgres-nginx-uds
+REDIS_SERVICE=laravel-redis-nginx-uds
+PGADMIN_SERVICE=laravel-pgadmin-nginx-uds
+NODE_SERVICE=laravel-node-nginx-uds
+QUEUE_SERVICE=laravel-queue-nginx-uds
+SCHEDULER_SERVICE=laravel-scheduler-nginx-uds
 
 help: ## Показать справку
-	@echo "$(YELLOW)Laravel PHP-FPM and Nginx Docker Boilerplate with TCP$(NC)"
+	@echo "$(YELLOW)Laravel PHP-FPM and Nginx Docker Boilerplate with Unix Socket$(NC)"
 	@echo "======================================"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
 
@@ -290,7 +290,7 @@ cleanup-nginx: ## Удалить .htaccess (не нужен для Nginx)
 	fi
 
 info: ## Показать информацию о проекте
-	@echo "$(YELLOW)Laravel-Nginx-TCP Development Environment$(NC)"
+	@echo "$(YELLOW)Laravel-Nginx-Socket Development Environment$(NC)"
 	@echo "======================================"
 	@echo "$(GREEN)Сервисы:$(NC)"
 	@echo "  • PHP-FPM 8.5 (Alpine)"
@@ -310,7 +310,7 @@ info: ## Показать информацию о проекте
 	@echo "  • 5432 - PostgreSQL (dev forwarded)"
 	@echo "  • 6379 - Redis (dev forwarded)"
 	@echo "  • 8080 - pgAdmin (dev only)"
-	@echo "  • TCP:9000 - Связь PHP-FPM <-> Nginx"
+	@echo "  • Unix Socket - Связь PHP-FPM <-> Nginx"
 
 validate: ## Проверить доступность сервисов по HTTP
 	@echo "$(YELLOW)Проверка работы сервисов...$(NC)"
